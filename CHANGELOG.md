@@ -25,3 +25,9 @@ versionnage [sémantique](https://semver.org/lang/fr/).
   paresseuse des tentatives ; délai par tentative borné (30 s maximum) ; scan limité à
   262 144 tentatives, refusé avant toute connexion au-delà.
 - Reconnaissance du refus de connexion sur tous les systèmes (POSIX et codes Windows 10061/1225).
+- Module `services` : fiches de ~50 services TCP (nom, description, niveau de risque de « info »
+  à « critique », recommandation de défense) ; propriété `ScanResult.service`.
+- Module `banner` : lecture passive et optionnelle des bannières (`grab_banners`), bornée en taille
+  (1 Kio) et en durée (2 s par défaut, 10 s maximum) ; neutralisation de tout caractère non
+  imprimable (séquences d'échappement de terminal, contrôles C0/C1, caractères Unicode invisibles
+  ou bidirectionnels) ; troncature à 200 caractères.

@@ -28,6 +28,8 @@ import time
 from collections.abc import Awaitable, Callable, Iterator, Sequence
 from dataclasses import dataclass
 
+from port_scanner.banner import DEFAULT_BANNER_TIMEOUT, MAX_BANNER_TIMEOUT, read_banner
+from port_scanner.services import ServiceInfo, lookup
 from port_scanner.targets import Target
 
 # ─────────────────────────────────────────────────────────────
@@ -64,6 +66,7 @@ class ScanResult:
 
     latency_ms : durée jusqu'à la réponse (ouvert ou fermé) ; None si aucune réponse.
     error      : détail technique quand l'état vient d'une erreur réseau inattendue.
+    banner     : bannière nettoyée (uniquement si demandée et si le service en envoie une).
     """
 
     target: Target
@@ -71,6 +74,12 @@ class ScanResult:
     state: PortState
     latency_ms: float | None = None
     error: str | None = None
+    banner: str | None = None
+
+    @property
+    def service(self) -> ServiceInfo:
+        """Service habituellement associé à ce port (hypothèse, voir services.py)."""
+        return lookup(self.port)
 
 
 # Signature d'un « connecteur » : (hôte, port) → (lecteur, écrivain) asyncio.
@@ -86,7 +95,11 @@ ResultCallback = Callable[[ScanResult], None]
 # ─────────────────────────────────────────────────────────────
 
 def validate_settings(
-    targets: Sequence[Target], ports: Sequence[int], timeout: float, concurrency: int
+    targets: Sequence[Target],
+    ports: Sequence[int],
+    timeout: float,
+    concurrency: int,
+    banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
 ) -> None:
     """Lève ValueError (message destiné à l'utilisateur) si un paramètre est hors bornes."""
     if not targets:
@@ -98,6 +111,10 @@ def validate_settings(
         raise ValueError(f"Délai invalide : {timeout} s (attendu : supérieur à 0 et au plus {MAX_TIMEOUT} s).")
     if not 1 <= concurrency <= MAX_CONCURRENCY:
         raise ValueError(f"Concurrence invalide : {concurrency} (attendu : 1 à {MAX_CONCURRENCY}).")
+    if not 0 < banner_timeout <= MAX_BANNER_TIMEOUT:
+        raise ValueError(
+            f"Délai de bannière invalide : {banner_timeout} s (attendu : supérieur à 0 et au plus {MAX_BANNER_TIMEOUT} s)."
+        )
     probes = len(targets) * len(ports)
     if probes > MAX_PROBES:
         raise ValueError(
@@ -128,8 +145,18 @@ async def _close_quietly(writer: asyncio.StreamWriter) -> None:
             await writer.wait_closed()
 
 
-async def probe(target: Target, port: int, timeout: float, connector: Connector) -> ScanResult:
-    """Tente UNE connexion TCP et renvoie l'état observé."""
+async def probe(
+    target: Target,
+    port: int,
+    timeout: float,
+    connector: Connector,
+    banner_timeout: float | None = None,
+) -> ScanResult:
+    """
+    Tente UNE connexion TCP et renvoie l'état observé.
+
+    banner_timeout : si renseigné, lit la bannière du service (port ouvert uniquement).
+    """
     start = time.perf_counter()
 
     def elapsed_ms() -> float:
@@ -138,7 +165,7 @@ async def probe(target: Target, port: int, timeout: float, connector: Connector)
     try:
         # asyncio.timeout (Python 3.11+) annule la tentative si elle dépasse le délai
         async with asyncio.timeout(timeout):
-            _reader, writer = await connector(str(target.address), port)
+            reader, writer = await connector(str(target.address), port)
     # ⚠️ L'ordre des « except » compte : TimeoutError et ConnectionRefusedError
     # sont des SOUS-CLASSES d'OSError ; elles doivent donc être traitées avant lui.
     except TimeoutError:
@@ -152,8 +179,14 @@ async def probe(target: Target, port: int, timeout: float, connector: Connector)
         return ScanResult(target, port, PortState.FILTERED, error=detail)
 
     latency = elapsed_ms()
-    await _close_quietly(writer)
-    return ScanResult(target, port, PortState.OPEN, latency_ms=latency)
+    banner = None
+    try:
+        if banner_timeout is not None:
+            banner = await read_banner(reader, banner_timeout)
+    finally:
+        # « finally » : la connexion est refermée même si la lecture est annulée
+        await _close_quietly(writer)
+    return ScanResult(target, port, PortState.OPEN, latency_ms=latency, banner=banner)
 
 
 # ─────────────────────────────────────────────────────────────
@@ -168,6 +201,8 @@ async def scan(
     concurrency: int = DEFAULT_CONCURRENCY,
     connector: Connector | None = None,
     on_result: ResultCallback | None = None,
+    grab_banners: bool = False,
+    banner_timeout: float = DEFAULT_BANNER_TIMEOUT,
 ) -> list[ScanResult]:
     """
     Scanne tous les couples (cible, port) et renvoie les résultats triés
@@ -177,8 +212,12 @@ async def scan(
     piochent les tentatives une à une dans un itérateur partagé. Le nombre de
     connexions simultanées est ainsi BORNÉ, et la mémoire aussi : les couples
     (cible, port) sont générés au fil de l'eau, jamais tous créés d'avance.
+
+    grab_banners : lit la bannière des ports ouverts (désactivé par défaut : plus lent
+                   et plus visible côté cible, car la connexion reste ouverte plus longtemps).
     """
-    validate_settings(targets, ports, timeout, concurrency)
+    validate_settings(targets, ports, timeout, concurrency, banner_timeout)
+    read_timeout = banner_timeout if grab_banners else None
     connect = connector or asyncio.open_connection
 
     # Index de chaque cible pour reconstituer l'ordre final
@@ -190,7 +229,7 @@ async def scan(
 
     async def worker() -> None:
         for target, port in jobs:
-            result = await probe(target, port, timeout, connect)
+            result = await probe(target, port, timeout, connect, read_timeout)
             results.append(result)
             if on_result is not None:
                 on_result(result)
