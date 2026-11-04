@@ -31,3 +31,12 @@ versionnage [sémantique](https://semver.org/lang/fr/).
   (1 Kio) et en durée (2 s par défaut, 10 s maximum) ; neutralisation de tout caractère non
   imprimable (séquences d'échappement de terminal, contrôles C0/C1, caractères Unicode invisibles
   ou bidirectionnels) ; troncature à 200 caractères.
+- Ligne de commande complète : options de scan (`-p`, `-t`, `-c`, `--max-hosts`, `--banners`,
+  `--banner-timeout`, `--allow-public`) et de sortie (`-f text|json|csv`, `-o`, `--force`, `--all`,
+  `--fail-on`, `--no-color`, `-q`) ; progression sur la sortie d'erreur.
+- Module `report` : tableau lisible avec recommandations triées par risque ; JSON et CSV aux clés
+  anglaises stables ; neutralisation de l'injection de formules dans le CSV (OWASP).
+- Codes de sortie : 0 succès, 1 seuil `--fail-on` atteint, 2 erreur de saisie, 3 erreur d'exécution,
+  130 interruption.
+- Fichier de sortie jamais écrasé sans `--force` (vérifié avant le scan) ; sortie redirigée en UTF-8
+  sous Windows.
