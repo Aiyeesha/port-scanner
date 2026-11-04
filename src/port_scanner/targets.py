@@ -39,10 +39,10 @@ DEFAULT_MAX_HOSTS = 1024
 # On n'utilise pas « ip.is_private » de Python : cette propriété inclut aussi
 # le lien local, les plages de documentation, etc., ce qui est trop large ici.
 PRIVATE_NETWORKS: tuple[ipaddress.IPv4Network | ipaddress.IPv6Network, ...] = (
-    ipaddress.ip_network("10.0.0.0/8"),       # RFC 1918
-    ipaddress.ip_network("172.16.0.0/12"),    # RFC 1918
-    ipaddress.ip_network("192.168.0.0/16"),   # RFC 1918
-    ipaddress.ip_network("fc00::/7"),         # RFC 4193 — adresses IPv6 locales uniques (ULA)
+    ipaddress.ip_network("10.0.0.0/8"),  # RFC 1918
+    ipaddress.ip_network("172.16.0.0/12"),  # RFC 1918
+    ipaddress.ip_network("192.168.0.0/16"),  # RFC 1918
+    ipaddress.ip_network("fc00::/7"),  # RFC 4193 — adresses IPv6 locales uniques (ULA)
 )
 
 # Nom d'hôte valide (RFC 1123) : étiquettes de 1 à 63 caractères, lettres, chiffres
@@ -61,7 +61,7 @@ class Category(enum.Enum):
 
     LOOPBACK = "boucle locale"
     PRIVATE = "réseau privé"
-    OTHER = "hors réseau privé"          # public, lien local, CGNAT, documentation…
+    OTHER = "hors réseau privé"  # public, lien local, CGNAT, documentation…
     FORBIDDEN = "adresse non scannable"  # multicast, non spécifiée, réservée…
 
 
@@ -82,6 +82,7 @@ class Target:
 # ─────────────────────────────────────────────────────────────
 # 2. Classification d'une adresse
 # ─────────────────────────────────────────────────────────────
+
 
 def classify(address: IPAddress) -> Category:
     """Range une adresse dans une catégorie de sécurité."""
@@ -143,6 +144,7 @@ def system_resolver(hostname: str) -> list[str]:
 # 4. Expansion d'une saisie en adresses
 # ─────────────────────────────────────────────────────────────
 
+
 def _expand_one(spec: str, resolver: Resolver, budget: int) -> list[IPAddress]:
     """
     Convertit UNE saisie en adresses, sans dépasser « budget » adresses.
@@ -166,8 +168,7 @@ def _expand_one(spec: str, resolver: Resolver, budget: int) -> list[IPAddress]:
         # un /64 IPv6 en contient 2^64, impossible à énumérer.
         if network.num_addresses > budget + 2:
             raise TargetError(
-                f"Réseau trop grand « {spec} » : {network.num_addresses} adresses "
-                f"(maximum restant : {budget})."
+                f"Réseau trop grand « {spec} » : {network.num_addresses} adresses (maximum restant : {budget})."
             )
         # hosts() exclut l'adresse de réseau et de diffusion (sauf /31 et /32)
         return list(network.hosts())
@@ -210,7 +211,7 @@ def parse_targets(
     Le garde-fou est appliqué à CHAQUE adresse, y compris celles obtenues par DNS :
     un nom d'hôte qui pointe vers une IP publique est donc refusé lui aussi.
     """
-    targets: dict[IPAddress, Target] = {}   # clé = adresse → dédoublonnage, ordre conservé
+    targets: dict[IPAddress, Target] = {}  # clé = adresse → dédoublonnage, ordre conservé
 
     for raw in specs:
         spec = raw.strip()

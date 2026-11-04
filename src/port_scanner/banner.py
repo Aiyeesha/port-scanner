@@ -24,9 +24,9 @@ from __future__ import annotations
 
 import asyncio
 
-MAX_BANNER_BYTES = 1024        # octets lus au maximum
-MAX_BANNER_CHARS = 200         # caractères conservés après nettoyage
-DEFAULT_BANNER_TIMEOUT = 2.0   # secondes d'attente de la bannière
+MAX_BANNER_BYTES = 1024  # octets lus au maximum
+MAX_BANNER_CHARS = 200  # caractères conservés après nettoyage
+DEFAULT_BANNER_TIMEOUT = 2.0  # secondes d'attente de la bannière
 MAX_BANNER_TIMEOUT = 10.0
 
 # Caractères de contrôle courants : rendus sous une forme lisible et inoffensive

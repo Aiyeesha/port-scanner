@@ -30,10 +30,10 @@ from port_scanner.services import Risk
 class ScanMeta:
     """Contexte du scan, reproduit dans les sorties pour la traçabilité."""
 
-    started_at: str                 # date et heure ISO 8601 en UTC
+    started_at: str  # date et heure ISO 8601 en UTC
     duration_s: float
-    targets: int                    # nombre d'adresses scannées
-    ports: int                      # nombre de ports par adresse
+    targets: int  # nombre d'adresses scannées
+    ports: int  # nombre de ports par adresse
     settings: dict = field(default_factory=dict)
 
 
@@ -83,6 +83,7 @@ def _row(result: ScanResult) -> dict:
 # ─────────────────────────────────────────────────────────────
 # 2. JSON
 # ─────────────────────────────────────────────────────────────
+
 
 def to_json(results: Sequence[ScanResult], meta: ScanMeta, include_all: bool = False) -> str:
     """Document JSON complet : outil, contexte, synthèse, puis résultats."""
@@ -138,11 +139,11 @@ def to_csv(results: Sequence[ScanResult], include_all: bool = False) -> str:
 
 _RESET = "\033[0m"
 _RISK_COLORS = {
-    Risk.CRITICAL: "\033[1;91m",   # rouge vif gras
-    Risk.HIGH: "\033[91m",         # rouge
-    Risk.MEDIUM: "\033[93m",       # jaune
-    Risk.LOW: "\033[92m",          # vert
-    Risk.INFO: "\033[37m",         # gris
+    Risk.CRITICAL: "\033[1;91m",  # rouge vif gras
+    Risk.HIGH: "\033[91m",  # rouge
+    Risk.MEDIUM: "\033[93m",  # jaune
+    Risk.LOW: "\033[92m",  # vert
+    Risk.INFO: "\033[37m",  # gris
 }
 _BOLD = "\033[1m"
 
@@ -174,7 +175,10 @@ def to_text(
         lines.append(f"  {'PORT':<10}{'ÉTAT':<10}{'SERVICE':<15}{'RISQUE':<10}BANNIÈRE")
         for r in host_results:
             risk = r.service.risk
-            risk_cell = _paint(f"{risk.label:<10}", _RISK_COLORS[risk], color) if r.state is PortState.OPEN else f"{'-':<10}"
+            if r.state is PortState.OPEN:
+                risk_cell = _paint(f"{risk.label:<10}", _RISK_COLORS[risk], color)
+            else:
+                risk_cell = f"{'-':<10}"  # le risque n'a de sens que pour un port ouvert
             port_cell = f"{r.port}/tcp"
             lines.append(f"  {port_cell:<10}{r.state.value:<10}{r.service.name:<15}{risk_cell}{r.banner or ''}")
         lines.append("")

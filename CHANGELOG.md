@@ -5,6 +5,10 @@ versionnage [sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.0.0] — 2026-11-04
+
+Première version stable : ligne de commande et formats JSON/CSV figés.
+
 ### Ajouté
 - Ossature du projet : paquet `port_scanner` (disposition `src/`), commande `port-scanner`
   (options `--help` et `--version`), tests de fumée et de ligne de commande.
@@ -40,3 +44,11 @@ versionnage [sémantique](https://semver.org/lang/fr/).
   130 interruption.
 - Fichier de sortie jamais écrasé sans `--force` (vérifié avant le scan) ; sortie redirigée en UTF-8
   sous Windows.
+- Qualité : analyse statique Ruff (style, logique et règles de sécurité Bandit) et vérification du
+  formatage en CI ; tests exécutés en mode développement de Python avec tout avertissement traité
+  comme une erreur (détection des sockets non refermés).
+- Documentation complète en français et en anglais (installation, options, formats, fonctionnement,
+  conception sécurisée, limites).
+
+[Non publié]: https://github.com/Aiyeesha/port-scanner/compare/v1.0.0...HEAD
+[1.0.0]: https://github.com/Aiyeesha/port-scanner/releases/tag/v1.0.0

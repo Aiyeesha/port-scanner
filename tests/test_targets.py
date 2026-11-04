@@ -24,7 +24,7 @@ FAKE_DNS = {
     "nas.local": ["192.168.1.20"],
     "double.lan": ["10.0.0.5", "fd00::5"],
     "public.example": ["93.184.216.34"],
-    "mixte.example": ["192.168.1.30", "8.8.8.8"],   # une réponse privée + une publique
+    "mixte.example": ["192.168.1.30", "8.8.8.8"],  # une réponse privée + une publique
     "vide.example": [],
     "corrompu.example": ["pas-une-ip"],
 }
@@ -47,25 +47,25 @@ def parse(*specs, **kwargs):
     ("ip", "categorie"),
     [
         ("127.0.0.1", Category.LOOPBACK),
-        ("127.8.9.10", Category.LOOPBACK),        # tout 127.0.0.0/8
+        ("127.8.9.10", Category.LOOPBACK),  # tout 127.0.0.0/8
         ("::1", Category.LOOPBACK),
         ("10.1.2.3", Category.PRIVATE),
         ("172.16.0.1", Category.PRIVATE),
         ("172.31.255.254", Category.PRIVATE),
         ("192.168.0.1", Category.PRIVATE),
-        ("fd12:3456::1", Category.PRIVATE),       # IPv6 ULA
-        ("172.32.0.1", Category.OTHER),           # juste hors de 172.16.0.0/12
-        ("8.8.8.8", Category.OTHER),              # public
-        ("169.254.169.254", Category.OTHER),      # lien local (dont métadonnées cloud)
-        ("100.64.0.1", Category.OTHER),           # CGNAT (RFC 6598)
-        ("192.0.2.1", Category.OTHER),            # documentation (RFC 5737)
-        ("fe80::1", Category.OTHER),              # IPv6 lien local
-        ("2001:db8::1", Category.OTHER),          # IPv6 documentation
-        ("224.0.0.1", Category.FORBIDDEN),        # multicast
-        ("ff02::1", Category.FORBIDDEN),          # multicast IPv6
-        ("0.0.0.0", Category.FORBIDDEN),          # non spécifiée
+        ("fd12:3456::1", Category.PRIVATE),  # IPv6 ULA
+        ("172.32.0.1", Category.OTHER),  # juste hors de 172.16.0.0/12
+        ("8.8.8.8", Category.OTHER),  # public
+        ("169.254.169.254", Category.OTHER),  # lien local (dont métadonnées cloud)
+        ("100.64.0.1", Category.OTHER),  # CGNAT (RFC 6598)
+        ("192.0.2.1", Category.OTHER),  # documentation (RFC 5737)
+        ("fe80::1", Category.OTHER),  # IPv6 lien local
+        ("2001:db8::1", Category.OTHER),  # IPv6 documentation
+        ("224.0.0.1", Category.FORBIDDEN),  # multicast
+        ("ff02::1", Category.FORBIDDEN),  # multicast IPv6
+        ("0.0.0.0", Category.FORBIDDEN),  # non spécifiée
         ("::", Category.FORBIDDEN),
-        ("240.0.0.1", Category.FORBIDDEN),        # réservée
+        ("240.0.0.1", Category.FORBIDDEN),  # réservée
         ("255.255.255.255", Category.FORBIDDEN),  # diffusion générale
     ],
 )
@@ -170,19 +170,19 @@ def test_limite_personnalisee():
     [
         "",
         "   ",
-        "192.168.1.256",        # octet hors limites
-        "127.1",                # forme abrégée ambiguë
-        "0x7f.1",               # forme hexadécimale ambiguë
-        "10.0.0.0/33",          # préfixe invalide
+        "192.168.1.256",  # octet hors limites
+        "127.1",  # forme abrégée ambiguë
+        "0x7f.1",  # forme hexadécimale ambiguë
+        "10.0.0.0/33",  # préfixe invalide
         "192.168.1.0/abc",
-        "-nas.local",           # tiret en tête d'étiquette
-        "nas_local",            # underscore interdit
-        "nas local",            # espace interne
-        "a" * 64 + ".lan",      # étiquette de plus de 63 caractères
-        "ｎａｓ.local",          # lettres pleine largeur Unicode
-        "inconnu.example",      # non résolu
-        "vide.example",         # résolu sans adresse
-        "corrompu.example",     # réponse DNS invalide
+        "-nas.local",  # tiret en tête d'étiquette
+        "nas_local",  # underscore interdit
+        "nas local",  # espace interne
+        "a" * 64 + ".lan",  # étiquette de plus de 63 caractères
+        "ｎａｓ.local",  # lettres pleine largeur Unicode
+        "inconnu.example",  # non résolu
+        "vide.example",  # résolu sans adresse
+        "corrompu.example",  # réponse DNS invalide
     ],
 )
 def test_saisies_refusees(cible):
@@ -199,4 +199,5 @@ def test_resolveur_systeme_non_appele_pour_une_ip(monkeypatch):
     # Une IP ne doit jamais déclencher de requête DNS
     def interdit(_name):
         raise AssertionError("le résolveur ne doit pas être appelé")
+
     assert [str(t.address) for t in parse_targets(["127.0.0.1"], resolver=interdit)] == ["127.0.0.1"]

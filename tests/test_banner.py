@@ -21,18 +21,18 @@ LOCAL = parse_targets(["127.0.0.1"])
 @pytest.mark.parametrize(
     ("brut", "attendu"),
     [
-        (b"SSH-2.0-OpenSSH_9.6\r\n", "SSH-2.0-OpenSSH_9.6"),          # fin de ligne retirée
+        (b"SSH-2.0-OpenSSH_9.6\r\n", "SSH-2.0-OpenSSH_9.6"),  # fin de ligne retirée
         (b"220 mail ESMTP\r\n250 OK", "220 mail ESMTP\\r\\n250 OK"),  # sauts internes visibles
-        (b"\x1b[31mROUGE\x1b[0m", "\\x1b[31mROUGE\\x1b[0m"),         # séquence ANSI neutralisée
-        (b"\x1b]0;titre\x07", "\\x1b]0;titre\\x07"),                  # changement de titre du terminal
-        (b"a\x00b", "a\\x00b"),                                       # octet nul
-        (b"a\x7fb", "a\\x7fb"),                                       # DEL
-        ("a\u009bb".encode(), "a\\x9bb"),                             # CSI C1 (équivalent d'ESC [)
-        ("admin‮gnp.exe".encode(), "admin\\u202egnp.exe"),       # inversion bidi (Trojan Source)
-        ("a​b".encode(), "a\\u200bb"),                           # espace de largeur nulle
-        (b"caf\xc3\xa9", "café"),                                     # UTF-8 valide conservé
-        (b"bad\xff\xfe", "bad��"),                          # UTF-8 invalide → �
-        (b"  \r\n ", ""),                                             # rien d'utile
+        (b"\x1b[31mROUGE\x1b[0m", "\\x1b[31mROUGE\\x1b[0m"),  # séquence ANSI neutralisée
+        (b"\x1b]0;titre\x07", "\\x1b]0;titre\\x07"),  # changement de titre du terminal
+        (b"a\x00b", "a\\x00b"),  # octet nul
+        (b"a\x7fb", "a\\x7fb"),  # DEL
+        ("a\u009bb".encode(), "a\\x9bb"),  # CSI C1 (équivalent d'ESC [)
+        ("admin‮gnp.exe".encode(), "admin\\u202egnp.exe"),  # inversion bidi (Trojan Source)
+        ("a​b".encode(), "a\\u200bb"),  # espace de largeur nulle
+        (b"caf\xc3\xa9", "café"),  # UTF-8 valide conservé
+        (b"bad\xff\xfe", "bad��"),  # UTF-8 invalide → �
+        (b"  \r\n ", ""),  # rien d'utile
     ],
 )
 def test_sanitize(brut, attendu):
@@ -52,13 +52,14 @@ def test_sanitize_ne_produit_que_des_caracteres_imprimables():
 # ── Lecture réelle sur la boucle locale ─────────────────────
 async def banner_server(payload, delay=0.0):
     """Serveur local qui envoie « payload » après « delay » secondes."""
+
     async def handle(reader, writer):
         if delay:
             await asyncio.sleep(delay)
         if payload:
             writer.write(payload)
             await writer.drain()
-        await reader.read()      # attend que le scanner ferme
+        await reader.read()  # attend que le scanner ferme
         writer.close()
 
     server = await asyncio.start_server(handle, "127.0.0.1", 0)
@@ -71,6 +72,7 @@ def scan_banner(payload, delay=0.0, **options):
         async with server:
             [result] = await scan(LOCAL, [port], timeout=2.0, **options)
             return result
+
     return asyncio.run(main())
 
 

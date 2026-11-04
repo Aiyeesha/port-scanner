@@ -24,19 +24,26 @@ def test_synthese_compte_tous_les_etats():
 
 
 def test_risque_maximal_des_ports_ouverts():
-    assert max_open_risk(RESULTS) is Risk.CRITICAL          # 445 SMB
-    assert max_open_risk(RESULTS[1:2]) is None              # aucun ouvert
+    assert max_open_risk(RESULTS) is Risk.CRITICAL  # 445 SMB
+    assert max_open_risk(RESULTS[1:2]) is None  # aucun ouvert
 
 
 def test_json_structure_et_valeurs_stables():
     doc = json.loads(to_json(RESULTS, META))
     assert doc["tool"] == "port-scanner"
     assert doc["summary"] == {"open": 2, "closed": 1, "filtered": 1}
-    assert [r["port"] for r in doc["results"]] == [22, 445]     # ouverts seulement par défaut
+    assert [r["port"] for r in doc["results"]] == [22, 445]  # ouverts seulement par défaut
     ssh = doc["results"][0]
     assert ssh == {
-        "address": "127.0.0.1", "source": "127.0.0.1", "port": 22, "state": "open",
-        "service": "ssh", "risk": "medium", "latency_ms": 1.2, "banner": "SSH-2.0-Test", "error": None,
+        "address": "127.0.0.1",
+        "source": "127.0.0.1",
+        "port": 22,
+        "state": "open",
+        "service": "ssh",
+        "risk": "medium",
+        "latency_ms": 1.2,
+        "banner": "SSH-2.0-Test",
+        "error": None,
     }
 
 
@@ -54,7 +61,7 @@ def test_csv_entete_et_lignes():
 
 def test_csv_neutralise_les_formules():
     # Bannière piégée : un tableur exécuterait la formule à l'ouverture du fichier
-    for piege in ("=HYPERLINK(\"http://x\")", "+1+1", "-2", "@SUM(A1)", "\tcmd"):
+    for piege in ('=HYPERLINK("http://x")', "+1+1", "-2", "@SUM(A1)", "\tcmd"):
         result = ScanResult(HOST, 22, PortState.OPEN, banner=piege)
         [row] = csv.DictReader(io.StringIO(to_csv([result])))
         assert row["banner"] == "'" + piege
@@ -69,11 +76,11 @@ def test_csv_texte_normal_intact():
 def test_texte_lisible_avec_recommandations_triees():
     text = to_text(RESULTS, META)
     assert "127.0.0.1" in text and "22/tcp" in text and "445/tcp" in text
-    assert "23/tcp" not in text                               # fermé masqué par défaut
+    assert "23/tcp" not in text  # fermé masqué par défaut
     assert "2 ouvert(s), 1 fermé(s), 1 filtré(s)" in text
     # La recommandation la plus critique (SMB) vient avant SSH
     assert text.index("[critique] smb") < text.index("[moyen] ssh")
-    assert "\033[" not in text                                # pas de couleur par défaut
+    assert "\033[" not in text  # pas de couleur par défaut
 
 
 def test_texte_avec_couleurs():

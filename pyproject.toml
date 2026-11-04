@@ -22,7 +22,7 @@ license = "MIT"                    # Identifiant SPDX standard
 authors = [{ name = "Aïcha Imène Dahoumane" }]
 keywords = ["port-scanner", "tcp", "asyncio", "network", "security", "blue-team", "suricata", "sigma"]
 classifiers = [
-    "Development Status :: 3 - Alpha",           # passera à 5 - Production/Stable en v1.0.0
+    "Development Status :: 5 - Production/Stable",
     "Environment :: Console",
     "Intended Audience :: Information Technology",
     "Intended Audience :: System Administrators",
@@ -40,7 +40,7 @@ dependencies = []
 
 # Dépendances utiles seulement pour développer (installées avec « .[dev] »)
 [project.optional-dependencies]
-dev = ["pytest>=9.2.0"]
+dev = ["pytest>=9.2.0", "ruff>=0.17.3"]
 
 [project.urls]
 Repository = "https://github.com/Aiyeesha/port-scanner"
@@ -68,3 +68,28 @@ version = { attr = "port_scanner.__version__" }
 # ─────────────────────────────────────────────────────────────
 [tool.pytest.ini_options]
 testpaths = ["tests"]              # pytest ne cherche les tests que dans ce dossier
+# Tout avertissement devient une ERREUR. Indispensable pour un scanner : un socket
+# oublié ouvert ne produit qu'un ResourceWarning, invisible par défaut, mais à l'échelle
+# de milliers de connexions il épuise les ressources du système.
+filterwarnings = ["error"]
+
+# ─────────────────────────────────────────────────────────────
+# 5. Analyse statique du code (ruff)
+# ─────────────────────────────────────────────────────────────
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = [
+    "E", "W",   # style PEP 8
+    "F",        # erreurs logiques (variable inutilisée, import manquant…)
+    "I",        # ordre des imports
+    "B",        # pièges courants (bugbear)
+    "UP",       # syntaxe moderne pour Python 3.11+
+    "S",        # sécurité (règles issues de Bandit)
+]
+
+[tool.ruff.lint.per-file-ignores]
+# Dans les tests, « assert » est l'outil normal (S101) ; les IP « 0.0.0.0 » y sont des données (S104).
+"tests/**" = ["S101", "S104"]
