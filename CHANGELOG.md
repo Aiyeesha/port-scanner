@@ -10,3 +10,12 @@ versionnage [sémantique](https://semver.org/lang/fr/).
   (options `--help` et `--version`), tests de fumée et de ligne de commande.
 - Intégration continue GitHub Actions (Python 3.11 et 3.14, Ubuntu et Windows) et Dependabot.
 - Politique de sécurité, licence MIT, README bilingue avec cadre légal.
+- Module `ports` : analyse des listes de ports (`22`, `20-25`, `22,80,443`) et préréglages
+  `top100`, `well-known`, `all` ; validation stricte (chiffres ASCII uniquement, bornes 1–65535,
+  plages inversées et éléments vides refusés).
+- Module `targets` : analyse des cibles (IP, réseau CIDR, nom d'hôte) avec dédoublonnage
+  et plafond du nombre d'adresses (1024 par défaut, contrôlé avant toute énumération).
+- Garde-fou « sécurisé par défaut » : seuls les réseaux privés (RFC 1918, IPv6 ULA) et la boucle
+  locale sont autorisés sans option explicite ; multicast, adresses non spécifiées et réservées
+  toujours refusées ; contrôle de chaque adresse résolue par DNS et des adresses IPv6 mappées ;
+  formes d'IP abrégées ambiguës (`127.1`, `0x7f.1`) refusées.
