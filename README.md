@@ -38,6 +38,7 @@ This is why the tool **refuses by default** any target that is neither private n
 - **Outputs**: coloured table, stable **JSON** and **CSV** for scripts and SIEMs.
 - **CI-friendly**: `--fail-on high` exits with code 1 when a risky port is open.
 - **Safeguards**: private networks only by default; size, duration and concurrency caps.
+- **Local web UI** (`port-scanner-web`): same engine, reachable from your own machine only.
 - **Zero dependencies**: Python standard library only.
 
 ---
@@ -143,6 +144,32 @@ connection may be logged by the target service — which the detection side buil
 > ℹ️ **Windows quirk**: on loopback, Windows retries a refused connection for about 2 seconds. With a
 > shorter timeout, a closed port on `127.0.0.1` may show as "filtered". Use `-t 3` on your own machine.
 
+## Local web UI
+
+```powershell
+port-scanner-web                 # opens the browser on http://127.0.0.1:8765/#token=…
+port-scanner-web --port 0        # let the OS pick a port
+port-scanner-web --no-browser    # only print the link
+```
+
+![Local web UI — dark theme](docs/web-ui-dark-en.png)
+
+The UI drives the same engine as the CLI and returns the same (exportable) JSON document. It is
+deliberately **stricter** than the CLI: the private-network safeguard cannot be lifted from it.
+
+A "local" server is still reachable by any page open in your browser, so it is protected like an
+exposed service:
+
+| Threat | Mitigation |
+|---|---|
+| Access from the network | binds to `127.0.0.1` or `::1` only; any other address is refused |
+| Third-party site sending requests (CSRF) | random 256-bit token regenerated at each launch, required in the `X-Scan-Token` header; `Origin` check; no CORS grant |
+| DNS rebinding | `Host` header must be `127.0.0.1:PORT`, `localhost:PORT` or `[::1]:PORT` |
+| Token leakage | passed in the URL **fragment** (`#token=`), never sent to the server or in the Referer, then removed from the address bar; constant-time comparison |
+| Page injection (XSS) | strict CSP with no inline script; results rendered with `textContent`, never `innerHTML` |
+| Resource abuse | 4 KiB JSON body, 32 targets per request, one scan at a time (`409`) |
+| Information leakage | generic error responses, `Server` header without Python version, `Cache-Control: no-store` |
+
 ## Secure design
 
 | Risk | Mitigation |
@@ -192,7 +219,7 @@ Tests **never** reach the outside network: real states are tested on `127.0.0.1`
 | 5 | Full CLI, JSON/CSV output, exit codes | ✅ |
 | 6 | Tests against local servers, docs, hardening → **v1.0.0** | ✅ |
 | 7 | Detection side: Wireshark capture, Suricata rule and Sigma rule | ✅ |
-| 8 | Local web UI (v1.1, optional) | ⏳ |
+| 8 | Local web UI → **v1.1.0** | ✅ |
 
 ## License
 

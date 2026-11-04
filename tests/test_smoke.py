@@ -11,7 +11,7 @@ import port_scanner
 
 
 def test_le_paquet_expose_sa_version():
-    assert port_scanner.__version__ == "1.0.0"
+    assert port_scanner.__version__ == "1.1.0"
 
 
 def test_la_version_installee_correspond_au_code():

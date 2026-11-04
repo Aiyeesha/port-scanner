@@ -53,12 +53,18 @@ Changelog = "https://github.com/Aiyeesha/port-scanner/blob/main/CHANGELOG.md"
 # « port-scanner » appellera la fonction main() du module cli.
 [project.scripts]
 port-scanner = "port_scanner.cli:main"
+# Interface web locale (étape 8) : serveur sur 127.0.0.1 uniquement
+port-scanner-web = "port_scanner.webui:main"
 
 # ─────────────────────────────────────────────────────────────
 # 3. Emplacement du code et version
 # ─────────────────────────────────────────────────────────────
 [tool.setuptools.packages.find]
 where = ["src"]
+
+# Fichiers de l'interface web embarqués dans le paquet (lus avec importlib.resources)
+[tool.setuptools.package-data]
+port_scanner = ["web/*.html", "web/*.js", "web/*.css"]
 
 [tool.setuptools.dynamic]
 version = { attr = "port_scanner.__version__" }

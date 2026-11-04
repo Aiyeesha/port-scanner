@@ -39,6 +39,7 @@ C'est pourquoi l'outil **refuse par défaut** toute cible qui n'est ni privée, 
 - **Sorties** : tableau lisible en couleurs, **JSON** et **CSV** stables pour les scripts et les SIEM.
 - **Intégration continue** : `--fail-on high` renvoie le code 1 si un port à risque est ouvert.
 - **Garde-fous** : réseaux privés uniquement par défaut, plafonds de taille, de durée et de concurrence.
+- **Interface web locale** (`port-scanner-web`) : même moteur, accessible uniquement depuis votre machine.
 - **Aucune dépendance** : uniquement la bibliothèque standard de Python.
 
 ---
@@ -203,6 +204,33 @@ détection exploite.
 
 ---
 
+## Interface web locale
+
+```powershell
+port-scanner-web                 # ouvre le navigateur sur http://127.0.0.1:8765/#token=…
+port-scanner-web --port 0        # port choisi par le système
+port-scanner-web --no-browser    # affiche seulement le lien
+```
+
+![Interface web locale — thème clair](docs/web-ui-light-fr.png)
+
+L'interface pilote le même moteur que la ligne de commande et renvoie le même document JSON
+(exportable). Elle est volontairement **plus restrictive** que la CLI : le garde-fou « réseaux privés »
+ne peut pas y être levé.
+
+Un serveur « local » reste joignable par n'importe quelle page ouverte dans votre navigateur ;
+il est donc protégé comme un service exposé :
+
+| Menace | Protection |
+|---|---|
+| Accès depuis le réseau | écoute sur `127.0.0.1` ou `::1` uniquement, toute autre adresse refusée |
+| Site tiers qui envoie des requêtes (CSRF) | jeton aléatoire de 256 bits régénéré à chaque lancement, exigé dans l'en-tête `X-Scan-Token` ; contrôle de l'en-tête `Origin` ; aucune autorisation CORS |
+| DNS rebinding | l'en-tête `Host` doit valoir `127.0.0.1:PORT`, `localhost:PORT` ou `[::1]:PORT` |
+| Fuite du jeton | transmis dans le **fragment** de l'URL (`#token=`), jamais envoyé au serveur ni dans le Referer, puis retiré de la barre d'adresse ; comparaison à temps constant |
+| Injection dans la page (XSS) | CSP stricte sans script en ligne ; résultats insérés avec `textContent`, jamais `innerHTML` |
+| Abus de ressources | corps JSON de 4 Kio maximum, 32 cibles par demande, un seul scan à la fois (`409`) |
+| Fuite d'informations | réponses d'erreur génériques, en-tête `Server` sans version de Python, `Cache-Control: no-store` |
+
 ## Conception sécurisée
 
 | Risque | Protection |
@@ -258,7 +286,7 @@ le reste par simulation.
 | 5 | Ligne de commande complète, sorties JSON/CSV, codes de retour | ✅ |
 | 6 | Tests sur serveurs locaux, documentation, durcissement → **v1.0.0** | ✅ |
 | 7 | Volet détection : capture Wireshark, règle Suricata et règle Sigma | ✅ |
-| 8 | Interface web locale (v1.1, optionnelle) | ⏳ |
+| 8 | Interface web locale → **v1.1.0** | ✅ |
 
 ## Licence
 

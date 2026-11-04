@@ -5,7 +5,18 @@ versionnage [sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+## [1.1.0] — 2026-11-04
+
 ### Ajouté
+- Interface web locale : commande `port-scanner-web` (module `webui`, fichiers `web/` embarqués dans
+  le paquet), bilingue français/anglais, thèmes clair et sombre, export JSON.
+- Défenses du serveur local : écoute sur la boucle locale uniquement, jeton aléatoire de 256 bits
+  transmis dans le fragment de l'URL puis dans l'en-tête `X-Scan-Token` (comparaison à temps
+  constant), contrôle des en-têtes `Host` (DNS rebinding) et `Origin` (CSRF), aucune autorisation
+  CORS, corps JSON borné à 4 Kio, un seul scan à la fois, CSP stricte sans script en ligne,
+  en-têtes `nosniff`, `DENY`, `no-referrer`, `no-store`, réponses d'erreur génériques.
+- Le garde-fou « réseaux privés » ne peut pas être levé depuis l'interface web.
+- Captures d'écran de l'interface dans `docs/`.
 - Volet détection (`detection/`) : guide Wireshark/tshark pas à pas (FR/EN), trois captures de
   laboratoire (scan, trafic normal, client très actif), deux règles Suricata (rafale de SYN, rafale
   de RST) et une règle Sigma de corrélation `value_count` (ports distincts par source), rattachées

@@ -54,6 +54,10 @@ jobs:
             - name: Vérifier que la commande est bien installée
               run: port-scanner --version
 
+            # L'interface web doit fonctionner depuis le paquet INSTALLÉ (fichiers web/ embarqués)
+            - name: Vérifier la commande de l'interface web
+              run: port-scanner-web --version
+
     # ─── Qualité et sécurité du code ──────────────────────────
     quality:
         name: Qualité · ruff

@@ -1,0 +1,93 @@
+<!doctype html>
+<!--
+  Interface web locale de port-scanner.
+  Aucun script en ligne et aucune ressource externe : la politique CSP du serveur
+  n'autorise que les fichiers servis par l'outil lui-même (app.js, style.css).
+-->
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="referrer" content="no-referrer">
+  <title>port-scanner</title>
+  <link rel="stylesheet" href="/style.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <header class="bar">
+    <div class="brand">
+      <span class="dot" aria-hidden="true"></span>
+      <strong>port-scanner</strong>
+      <span class="muted" id="version"></span>
+    </div>
+    <button type="button" id="lang" class="ghost" aria-label="Langue / Language">EN</button>
+  </header>
+
+  <main>
+    <!-- Avertissement légal permanent -->
+    <p class="notice" data-i18n="legal"></p>
+
+    <!-- Jeton absent : la page a été ouverte sans le lien affiché par la commande -->
+    <p class="error" id="no-token" hidden data-i18n="noToken"></p>
+
+    <form id="scan-form" class="panel" autocomplete="off" novalidate>
+      <div class="field wide">
+        <label for="targets" data-i18n="targets"></label>
+        <input id="targets" name="targets" required spellcheck="false" placeholder="127.0.0.1  192.168.1.0/28  nas.local">
+        <small class="muted" data-i18n="targetsHelp"></small>
+      </div>
+      <div class="field">
+        <label for="ports" data-i18n="ports"></label>
+        <input id="ports" name="ports" value="top100" spellcheck="false" list="presets">
+        <datalist id="presets"></datalist>
+        <small class="muted" data-i18n="portsHelp"></small>
+      </div>
+      <div class="field">
+        <label for="timeout" data-i18n="timeout"></label>
+        <input id="timeout" name="timeout" type="number" min="0.05" max="30" step="0.05" value="1">
+      </div>
+      <div class="field">
+        <label for="concurrency" data-i18n="concurrency"></label>
+        <input id="concurrency" name="concurrency" type="number" min="1" max="500" step="1" value="100">
+      </div>
+      <div class="checks wide">
+        <label><input type="checkbox" id="banners"> <span data-i18n="banners"></span></label>
+        <label><input type="checkbox" id="all"> <span data-i18n="all"></span></label>
+      </div>
+      <div class="actions wide">
+        <button type="submit" id="run" data-i18n="run"></button>
+        <span id="status" class="muted" role="status" aria-live="polite"></span>
+      </div>
+    </form>
+
+    <section id="results" class="panel" hidden aria-labelledby="results-title">
+      <div class="results-head">
+        <h2 id="results-title" data-i18n="results"></h2>
+        <button type="button" id="export" class="ghost" data-i18n="export"></button>
+      </div>
+      <p id="summary"></p>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th data-i18n="colAddress"></th>
+              <th data-i18n="colPort"></th>
+              <th data-i18n="colState"></th>
+              <th data-i18n="colService"></th>
+              <th data-i18n="colRisk"></th>
+              <th data-i18n="colLatency"></th>
+              <th data-i18n="colBanner"></th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+      <p id="empty" class="muted" hidden data-i18n="empty"></p>
+    </section>
+  </main>
+
+  <footer class="muted">
+    <span data-i18n="footer"></span>
+  </footer>
+</body>
+</html>
