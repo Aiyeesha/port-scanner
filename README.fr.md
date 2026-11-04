@@ -30,7 +30,7 @@ ni la boucle locale : une option explicite sera nécessaire pour lever ce garde-
 | 2 | Analyse des cibles et des ports, garde-fou réseaux privés | ✅ |
 | 3 | Scan TCP « connect » asynchrone (asyncio), concurrence bornée | ✅ |
 | 4 | Identification des services, niveau de risque, lecture de bannière (optionnelle) | ✅ |
-| 5 | Ligne de commande complète, sorties JSON/CSV, codes de retour | ⏳ |
+| 5 | Ligne de commande complète, sorties JSON/CSV, codes de retour | ✅ |
 | 6 | Tests sur serveurs locaux, documentation, durcissement → **v1.0.0** | ⏳ |
 | 7 | Volet détection : capture Wireshark, règle Suricata et règle Sigma | ⏳ |
 | 8 | Interface web locale (v1.1, optionnelle) | ⏳ |
