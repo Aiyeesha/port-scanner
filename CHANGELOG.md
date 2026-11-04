@@ -19,3 +19,9 @@ versionnage [sémantique](https://semver.org/lang/fr/).
   locale sont autorisés sans option explicite ; multicast, adresses non spécifiées et réservées
   toujours refusées ; contrôle de chaque adresse résolue par DNS et des adresses IPv6 mappées ;
   formes d'IP abrégées ambiguës (`127.1`, `0x7f.1`) refusées.
+- Module `scanner` : scan TCP « connect » asynchrone (asyncio) avec trois états (ouvert, fermé,
+  filtré), mesure de latence, fermeture systématique des connexions ouvertes.
+- Pool de travailleurs à concurrence bornée (100 par défaut, 500 maximum) et génération
+  paresseuse des tentatives ; délai par tentative borné (30 s maximum) ; scan limité à
+  262 144 tentatives, refusé avant toute connexion au-delà.
+- Reconnaissance du refus de connexion sur tous les systèmes (POSIX et codes Windows 10061/1225).
