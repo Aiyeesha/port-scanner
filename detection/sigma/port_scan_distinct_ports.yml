@@ -1,0 +1,59 @@
+title: Connexion TCP vers une destination interne
+id: ee2a4c8e-9ad2-4dab-80ea-02547f57e37d
+name: port_scanner_connexion_interne
+status: experimental
+description: >
+    Événement de pare-feu correspondant à une tentative de connexion vers une adresse
+    du réseau interne (RFC 1918). Règle de base, non alertante seule : elle alimente
+    la corrélation ci-dessous.
+references:
+    - https://attack.mitre.org/techniques/T1046/
+    - https://github.com/Aiyeesha/port-scanner
+author: Aïcha Imène Dahoumane
+date: 2026-11-04
+tags:
+    - attack.discovery
+    - attack.t1046
+logsource:
+    category: firewall
+detection:
+    selection:
+        dst_ip|cidr:
+            - 10.0.0.0/8
+            - 172.16.0.0/12
+            - 192.168.0.0/16
+    condition: selection
+falsepositives:
+    - Toute connexion interne légitime (règle de base non alertante)
+level: informational
+---
+title: Balayage de ports - une source contacte de nombreux ports distincts
+id: 35f84ce7-0ad7-440c-87a9-344255530566
+status: experimental
+description: >
+    Une même adresse source tente de joindre au moins 30 ports de destination DISTINCTS
+    sur le réseau interne en moins d'une minute : comportement typique d'un balayage de
+    ports (découverte réseau, mouvement latéral). Le comptage de valeurs distinctes évite
+    le faux positif d'un client légitime très actif vers un seul service.
+references:
+    - https://attack.mitre.org/techniques/T1046/
+    - https://github.com/Aiyeesha/port-scanner
+author: Aïcha Imène Dahoumane
+date: 2026-11-04
+tags:
+    - attack.discovery
+    - attack.t1046
+correlation:
+    type: value_count
+    rules:
+        - port_scanner_connexion_interne
+    group-by:
+        - src_ip
+    timespan: 1m
+    condition:
+        gte: 30
+        field: dst_port
+falsepositives:
+    - Scanners de vulnérabilités et outils d'inventaire autorisés (à exclure par adresse source)
+    - Supervision qui teste de nombreux services (à exclure par adresse source)
+level: medium

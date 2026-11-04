@@ -5,6 +5,14 @@ versionnage [sémantique](https://semver.org/lang/fr/).
 
 ## [Non publié]
 
+### Ajouté
+- Volet détection (`detection/`) : guide Wireshark/tshark pas à pas (FR/EN), trois captures de
+  laboratoire (scan, trafic normal, client très actif), deux règles Suricata (rafale de SYN, rafale
+  de RST) et une règle Sigma de corrélation `value_count` (ports distincts par source), rattachées
+  à MITRE ATT&CK T1046.
+- CI : job « Détection · Suricata + Sigma » qui rejoue les captures et vérifie les alertes attendues
+  (y compris l'absence d'alerte sur le trafic normal) et valide la règle Sigma.
+
 ## [1.0.0] — 2026-11-04
 
 Première version stable : ligne de commande et formats JSON/CSV figés.

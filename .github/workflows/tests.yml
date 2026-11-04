@@ -81,3 +81,36 @@ jobs:
 
             - name: Formatage
               run: ruff format --check .
+
+    # ─── Volet détection : les règles fonctionnent-elles vraiment ? ──
+    detection:
+        name: Détection · Suricata + Sigma
+        runs-on: ubuntu-latest
+        timeout-minutes: 10
+        steps:
+            - name: Récupérer le code
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Installer Suricata
+              run: |
+                  sudo apt-get update -qq
+                  sudo apt-get install -y -qq suricata
+                  suricata -V
+
+            # Rejoue les captures d'exemple : le scan doit être détecté, le trafic normal ignoré
+            - name: Vérifier les règles Suricata
+              run: bash detection/scripts/check_suricata.sh
+
+            - name: Installer Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            # Version épinglée : la validation reste reproductible
+            - name: Installer sigma-cli
+              run: pip install "sigma-cli==4.0.0"
+
+            - name: Valider la règle Sigma
+              run: sigma check detection/sigma/
