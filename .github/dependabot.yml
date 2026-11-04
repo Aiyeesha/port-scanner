@@ -1,0 +1,17 @@
+# ─────────────────────────────────────────────────────────────
+# Dependabot : propose automatiquement (par Pull Request)
+# les mises à jour des actions GitHub et des dépendances.
+# ─────────────────────────────────────────────────────────────
+version: 2
+updates:
+    # Versions des actions utilisées dans .github/workflows/
+    - package-ecosystem: "github-actions"
+      directory: "/"
+      schedule:
+          interval: "weekly"
+
+    # Dépendances Python déclarées dans pyproject.toml
+    - package-ecosystem: "pip"
+      directory: "/"
+      schedule:
+          interval: "weekly"

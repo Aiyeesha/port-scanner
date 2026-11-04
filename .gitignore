@@ -1,0 +1,39 @@
+# --- Environnement virtuel ---
+# Ne jamais versionner .venv : il est lourd, propre à votre machine,
+# et se recrée en une commande
+.venv/
+
+# --- Fichiers compilés par Python ---
+# C'était l'erreur de l'ancien dépôt (__pycache__ avait été commité)
+__pycache__/
+*.py[cod]
+
+# --- Fichiers générés par l'installation et les tests ---
+*.egg-info/
+build/
+dist/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# --- Secrets et configuration locale ---
+# Bonne pratique de sécurité : un fichier .env ne doit JAMAIS arriver sur GitHub
+.env
+
+# --- Fichiers propres à l'éditeur et au système ---
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
+
+# --- Fichiers créés automatiquement par les outils Salesforce (VS Code / sf CLI) ---
+# Ils contiennent des identifiants d'org et n'ont rien à faire dans un projet Python
+.sf/
+.sfdx/
+
+# --- Résultats de scan ---
+# Ils peuvent révéler la topologie d'un réseau : ne jamais les publier par accident
+*.pcap
+*.pcapng
+scan-*.json
+scan-*.csv

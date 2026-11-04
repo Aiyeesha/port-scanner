@@ -1,0 +1,70 @@
+# ─────────────────────────────────────────────────────────────
+# 1. Outil de construction du paquet
+# ─────────────────────────────────────────────────────────────
+# Indique à pip comment installer le projet : ici avec setuptools,
+# l'outil standard le plus répandu.
+[build-system]
+requires = ["setuptools>=84.2.1"]      # 77 minimum pour le format SPDX de la licence
+build-backend = "setuptools.build_meta"
+
+# ─────────────────────────────────────────────────────────────
+# 2. Description du projet
+# ─────────────────────────────────────────────────────────────
+[project]
+name = "port-scanner"
+# La version est lue dans src/port_scanner/__init__.py (voir [tool.setuptools.dynamic]) :
+# une seule source de vérité, aucun oubli possible.
+dynamic = ["version"]
+description = "Scanner de ports TCP asynchrone, sécurisé par défaut, avec volet détection Blue Team"
+readme = "README.md"
+requires-python = ">=3.11"         # asyncio.TaskGroup et asyncio.timeout() exigent Python 3.11
+license = "MIT"                    # Identifiant SPDX standard
+authors = [{ name = "Aïcha Imène Dahoumane" }]
+keywords = ["port-scanner", "tcp", "asyncio", "network", "security", "blue-team", "suricata", "sigma"]
+classifiers = [
+    "Development Status :: 3 - Alpha",           # passera à 5 - Production/Stable en v1.0.0
+    "Environment :: Console",
+    "Intended Audience :: Information Technology",
+    "Intended Audience :: System Administrators",
+    "Natural Language :: French",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Topic :: Security",
+    "Topic :: System :: Networking :: Monitoring",
+]
+
+# Dépendances nécessaires au fonctionnement : AUCUNE.
+# Choix volontaire : asyncio, socket et ipaddress (bibliothèque standard) suffisent,
+# ce qui supprime tout risque lié à la chaîne d'approvisionnement logicielle.
+dependencies = []
+
+# Dépendances utiles seulement pour développer (installées avec « .[dev] »)
+[project.optional-dependencies]
+dev = ["pytest>=9.2.0"]
+
+[project.urls]
+Repository = "https://github.com/Aiyeesha/port-scanner"
+Issues = "https://github.com/Aiyeesha/port-scanner/issues"
+Changelog = "https://github.com/Aiyeesha/port-scanner/blob/main/CHANGELOG.md"
+
+# ─────────────────────────────────────────────────────────────
+# Commande installée dans le terminal
+# ─────────────────────────────────────────────────────────────
+# « port-scanner » appellera la fonction main() du module cli.
+[project.scripts]
+port-scanner = "port_scanner.cli:main"
+
+# ─────────────────────────────────────────────────────────────
+# 3. Emplacement du code et version
+# ─────────────────────────────────────────────────────────────
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.dynamic]
+version = { attr = "port_scanner.__version__" }
+
+# ─────────────────────────────────────────────────────────────
+# 4. Configuration de pytest
+# ─────────────────────────────────────────────────────────────
+[tool.pytest.ini_options]
+testpaths = ["tests"]              # pytest ne cherche les tests que dans ce dossier

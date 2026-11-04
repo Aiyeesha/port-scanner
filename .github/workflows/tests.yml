@@ -1,0 +1,53 @@
+# ─────────────────────────────────────────────────────────────
+# Intégration continue : lance les tests automatiquement
+# à chaque push sur main et à chaque Pull Request.
+# ─────────────────────────────────────────────────────────────
+name: Tests
+
+on:
+    push:
+        branches: [main]
+    pull_request:
+
+# Principe du moindre privilège : le workflow peut seulement LIRE le dépôt.
+permissions:
+    contents: read
+
+jobs:
+    tests:
+        # Nom affiché dans GitHub, par exemple « Python 3.14 · windows-latest »
+        name: Python ${{ matrix.python-version }} · ${{ matrix.os }}
+        runs-on: ${{ matrix.os }}
+        # Garde-fou : un scan de test bloqué ne doit pas consommer 6 h de minutes CI
+        timeout-minutes: 10
+
+        strategy:
+            # Si une combinaison échoue, les autres continuent : on voit tout d'un coup
+            fail-fast: false
+            matrix:
+                # Windows est indispensable : asyncio y utilise une boucle d'événements différente (Proactor)
+                os: [ubuntu-latest, windows-latest]
+                python-version: ["3.11", "3.14"] # version minimale déclarée + version actuelle
+
+        steps:
+            - name: Récupérer le code
+              uses: actions/checkout@v7
+              with:
+                  # Le jeton d'accès n'est pas conservé après la récupération du code
+                  persist-credentials: false
+
+            - name: Installer Python ${{ matrix.python-version }}
+              uses: actions/setup-python@v7
+              with:
+                  python-version: ${{ matrix.python-version }}
+
+            - name: Installer le projet et les dépendances de test
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+
+            - name: Lancer les tests
+              run: pytest -v
+
+            - name: Vérifier que la commande est bien installée
+              run: port-scanner --version

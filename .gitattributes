@@ -1,0 +1,5 @@
+# Règle unique pour les fins de ligne : Git stocke tous les fichiers texte en LF,
+# le format Unix utilisé par GitHub et par les outils Python.
+# Cela supprime les avertissements CRLF et évite des différences parasites
+# si le projet est un jour modifié sous Linux ou macOS.
+* text=auto eol=lf
