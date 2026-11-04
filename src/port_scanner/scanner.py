@@ -36,11 +36,11 @@ from port_scanner.targets import Target
 # 1. Paramètres par défaut et bornes
 # ─────────────────────────────────────────────────────────────
 
-DEFAULT_TIMEOUT = 1.0          # secondes d'attente maximale par tentative
-DEFAULT_CONCURRENCY = 100      # tentatives simultanées
-MAX_CONCURRENCY = 500          # plafond : Linux limite souvent un processus à 1024 fichiers ouverts
-MAX_TIMEOUT = 30.0             # au-delà, un scan devient inutilement long
-MAX_PROBES = 262_144           # 4 × 65 536 tentatives : borne la mémoire et la durée d'un scan
+DEFAULT_TIMEOUT = 1.0  # secondes d'attente maximale par tentative
+DEFAULT_CONCURRENCY = 100  # tentatives simultanées
+MAX_CONCURRENCY = 500  # plafond : Linux limite souvent un processus à 1024 fichiers ouverts
+MAX_TIMEOUT = 30.0  # au-delà, un scan devient inutilement long
+MAX_PROBES = 262_144  # 4 × 65 536 tentatives : borne la mémoire et la durée d'un scan
 
 # Délai maximal accordé à la fermeture propre d'une connexion ouverte
 _CLOSE_TIMEOUT = 1.0
@@ -94,6 +94,7 @@ ResultCallback = Callable[[ScanResult], None]
 # 2. Validation des paramètres
 # ─────────────────────────────────────────────────────────────
 
+
 def validate_settings(
     targets: Sequence[Target],
     ports: Sequence[int],
@@ -113,7 +114,8 @@ def validate_settings(
         raise ValueError(f"Concurrence invalide : {concurrency} (attendu : 1 à {MAX_CONCURRENCY}).")
     if not 0 < banner_timeout <= MAX_BANNER_TIMEOUT:
         raise ValueError(
-            f"Délai de bannière invalide : {banner_timeout} s (attendu : supérieur à 0 et au plus {MAX_BANNER_TIMEOUT} s)."
+            f"Délai de bannière invalide : {banner_timeout} s "
+            f"(attendu : supérieur à 0 et au plus {MAX_BANNER_TIMEOUT} s)."
         )
     probes = len(targets) * len(ports)
     if probes > MAX_PROBES:
@@ -126,6 +128,7 @@ def validate_settings(
 # ─────────────────────────────────────────────────────────────
 # 3. Une tentative de connexion
 # ─────────────────────────────────────────────────────────────
+
 
 def _is_refused(exc: OSError) -> bool:
     """Vrai si l'erreur signifie « connexion refusée », quel que soit le système."""
@@ -192,6 +195,7 @@ async def probe(
 # ─────────────────────────────────────────────────────────────
 # 4. Le scan complet
 # ─────────────────────────────────────────────────────────────
+
 
 async def scan(
     targets: Sequence[Target],

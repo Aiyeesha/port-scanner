@@ -28,7 +28,7 @@ def test_services_connus(port, nom, risque):
 def test_port_inconnu():
     assert lookup(31337) is UNKNOWN
     assert UNKNOWN.risk is Risk.INFO
-    assert "netstat" in UNKNOWN.advice   # la recommandation explique comment enquêter
+    assert "netstat" in UNKNOWN.advice  # la recommandation explique comment enquêter
 
 
 def test_table_coherente():

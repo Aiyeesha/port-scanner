@@ -46,8 +46,38 @@ jobs:
                   python -m pip install --upgrade pip
                   pip install -e ".[dev]"
 
+            # -X dev : mode développement de Python (débogage asyncio, ResourceWarning visibles) ;
+            # avec filterwarnings = ["error"], un socket oublié ouvert fait échouer la CI.
             - name: Lancer les tests
-              run: pytest -v
+              run: python -X dev -m pytest -v
 
             - name: Vérifier que la commande est bien installée
               run: port-scanner --version
+
+    # ─── Qualité et sécurité du code ──────────────────────────
+    quality:
+        name: Qualité · ruff
+        runs-on: ubuntu-latest
+        timeout-minutes: 5
+        steps:
+            - name: Récupérer le code
+              uses: actions/checkout@v7
+              with:
+                  persist-credentials: false
+
+            - name: Installer Python
+              uses: actions/setup-python@v7
+              with:
+                  python-version: "3.14"
+
+            - name: Installer les outils
+              run: |
+                  python -m pip install --upgrade pip
+                  pip install -e ".[dev]"
+
+            # Règles de style, de logique et de sécurité (S = règles issues de Bandit)
+            - name: Analyse statique
+              run: ruff check --output-format github .
+
+            - name: Formatage
+              run: ruff format --check .

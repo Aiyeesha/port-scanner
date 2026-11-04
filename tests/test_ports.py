@@ -11,12 +11,12 @@ from port_scanner.ports import MAX_PORT, PRESETS, TOP_100, PortSpecError, parse_
     [
         ("22", (22,)),
         ("20-23", (20, 21, 22, 23)),
-        ("443,22,80", (22, 80, 443)),            # trié
-        ("22,22,20-22", (20, 21, 22)),           # dédoublonné
-        (" 22 , 80 ", (22, 80)),                 # espaces tolérés autour des éléments
-        ("1", (1,)),                             # borne basse
-        ("65535", (65535,)),                     # borne haute
-        ("8080-8080", (8080,)),                  # plage d'un seul port
+        ("443,22,80", (22, 80, 443)),  # trié
+        ("22,22,20-22", (20, 21, 22)),  # dédoublonné
+        (" 22 , 80 ", (22, 80)),  # espaces tolérés autour des éléments
+        ("1", (1,)),  # borne basse
+        ("65535", (65535,)),  # borne haute
+        ("8080-8080", (8080,)),  # plage d'un seul port
     ],
 )
 def test_formats_valides(spec, attendu):
@@ -48,25 +48,25 @@ def test_combinaison_preregle_et_ports():
 @pytest.mark.parametrize(
     "spec",
     [
-        "",            # vide
-        "   ",         # espaces seuls
-        "0",           # port 0 réservé
-        "65536",       # au-delà de 16 bits
+        "",  # vide
+        "   ",  # espaces seuls
+        "0",  # port 0 réservé
+        "65536",  # au-delà de 16 bits
         "99999",
-        "25-20",       # plage inversée
-        "0-10",        # plage commençant à 0
-        "22,,80",      # élément vide
-        "22,",         # virgule finale
-        "abc",         # texte
-        "22abc",       # nombre suivi de texte
-        "-22",         # signe négatif
+        "25-20",  # plage inversée
+        "0-10",  # plage commençant à 0
+        "22,,80",  # élément vide
+        "22,",  # virgule finale
+        "abc",  # texte
+        "22abc",  # nombre suivi de texte
+        "-22",  # signe négatif
         "+22",
-        "20-",         # plage incomplète
+        "20-",  # plage incomplète
         "20--25",
-        "1e3",         # notation scientifique
-        "123456",      # plus de 5 chiffres
-        "２２",         # chiffres « pleine largeur » Unicode
-        "top1000",     # préréglage inconnu
+        "1e3",  # notation scientifique
+        "123456",  # plus de 5 chiffres
+        "２２",  # chiffres « pleine largeur » Unicode
+        "top1000",  # préréglage inconnu
     ],
 )
 def test_saisies_refusees(spec):

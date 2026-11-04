@@ -86,12 +86,12 @@ def test_sortie_csv_avec_tous_les_ports(capsys):
 # ── Codes de sortie et seuil de risque ──────────────────────
 def test_fail_on_atteint(capsys):
     code, _, _ = run(["127.0.0.1", "-p", "445", "--fail-on", "high"], capsys)
-    assert code == EXIT_RISK                                # SMB = critique ≥ élevé
+    assert code == EXIT_RISK  # SMB = critique ≥ élevé
 
 
 def test_fail_on_non_atteint(capsys):
     code, _, _ = run(["127.0.0.1", "-p", "22", "--fail-on", "high"], capsys)
-    assert code == EXIT_OK                                  # SSH = moyen < élevé
+    assert code == EXIT_OK  # SSH = moyen < élevé
 
 
 @pytest.mark.parametrize(
@@ -100,8 +100,8 @@ def test_fail_on_non_atteint(capsys):
         ["127.0.0.1", "-p", "0"],
         ["127.0.0.1", "-p", "abc"],
         ["999.1.1.1"],
-        ["8.8.8.8"],                                        # garde-fou
-        ["10.0.0.0/16"],                                    # au-delà de --max-hosts par défaut
+        ["8.8.8.8"],  # garde-fou
+        ["10.0.0.0/16"],  # au-delà de --max-hosts par défaut
     ],
 )
 def test_erreurs_de_saisie(argv, capsys):
@@ -182,7 +182,7 @@ def test_bout_en_bout_avec_banniere(capsys):
         conn, _ = serveur.accept()
         with conn:
             conn.sendall(b"SSH-2.0-E2E_Test\r\n")
-            conn.recv(1)            # attend la fermeture côté scanner
+            conn.recv(1)  # attend la fermeture côté scanner
 
     fil = threading.Thread(target=accepter, daemon=True)
     fil.start()

@@ -4,7 +4,8 @@
 
 | Version | Prise en charge |
 |---------|-----------------|
-| 0.x (développement) | ✅ dernière version uniquement |
+| 1.x     | ✅ |
+| < 1.0   | ❌ |
 
 ## Signaler une vulnérabilité
 

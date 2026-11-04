@@ -48,7 +48,7 @@ async def start_server(host="127.0.0.1"):
     closed = asyncio.Event()
 
     async def handle(reader, writer):
-        await reader.read()          # attend la fin de flux (EOF) envoyée par le scanner
+        await reader.read()  # attend la fin de flux (EOF) envoyée par le scanner
         closed.set()
         writer.close()
 
@@ -59,8 +59,10 @@ async def start_server(host="127.0.0.1"):
 
 def connector_raising(exc):
     """Faux connecteur qui lève immédiatement l'exception donnée."""
+
     async def connect(host, port):
         raise exc
+
     return connect
 
 
@@ -170,14 +172,17 @@ def test_concurrence_bornee():
 
     results = run_scan(LOCAL, list(range(1, 201)), concurrency=7, connector=compte)
     assert len(results) == 200
-    assert maximum == 7          # jamais plus de 7 tentatives simultanées
+    assert maximum == 7  # jamais plus de 7 tentatives simultanées
 
 
 def test_ordre_cibles_puis_ports():
     cibles = parse_targets(["127.0.0.3", "127.0.0.2"])
     results = run_scan(cibles, [443, 22], connector=connector_raising(ConnectionRefusedError()))
     assert [(str(r.target.address), r.port) for r in results] == [
-        ("127.0.0.3", 22), ("127.0.0.3", 443), ("127.0.0.2", 22), ("127.0.0.2", 443),
+        ("127.0.0.3", 22),
+        ("127.0.0.3", 443),
+        ("127.0.0.2", 22),
+        ("127.0.0.2", 443),
     ]
 
 
@@ -212,8 +217,8 @@ def test_listes_vides_refusees():
 
 
 def test_scan_trop_volumineux_refuse_avant_toute_connexion():
-    cibles = parse_targets(["127.0.0.0/29"])          # 6 adresses
-    ports = list(range(1, 65536))                     # 6 × 65 535 > MAX_PROBES
+    cibles = parse_targets(["127.0.0.0/29"])  # 6 adresses
+    ports = list(range(1, 65536))  # 6 × 65 535 > MAX_PROBES
 
     async def interdit(host, port):
         raise AssertionError("aucune connexion ne doit être tentée")

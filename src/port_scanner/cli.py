@@ -47,9 +47,9 @@ EXIT_OK = 0
 EXIT_RISK = 1
 EXIT_USAGE = 2
 EXIT_ERROR = 3
-EXIT_INTERRUPTED = 130          # convention Unix : 128 + SIGINT (2)
+EXIT_INTERRUPTED = 130  # convention Unix : 128 + SIGINT (2)
 
-MAX_HOSTS_LIMIT = 65_536        # plafond absolu de --max-hosts (un /16)
+MAX_HOSTS_LIMIT = 65_536  # plafond absolu de --max-hosts (un /16)
 
 # Seuils acceptés par --fail-on (noms anglais stables, comme dans le JSON)
 _RISK_CHOICES = {risk.name.lower(): risk for risk in Risk}
@@ -59,19 +59,21 @@ _RISK_CHOICES = {risk.name.lower(): risk for risk in Risk}
 # 2. Options
 # ─────────────────────────────────────────────────────────────
 
+
 def _positive_float(text: str) -> float:
     """Convertisseur argparse : nombre décimal strictement positif."""
     try:
         value = float(text)
     except ValueError:
         raise argparse.ArgumentTypeError(f"nombre attendu : « {text} »") from None
-    if not value > 0:       # rejette aussi NaN
+    if not value > 0:  # rejette aussi NaN
         raise argparse.ArgumentTypeError(f"doit être supérieur à 0 : « {text} »")
     return value
 
 
 def _bounded_int(low: int, high: int):
     """Fabrique un convertisseur argparse pour un entier compris entre low et high."""
+
     def convert(text: str) -> int:
         try:
             value = int(text)
@@ -80,6 +82,7 @@ def _bounded_int(low: int, high: int):
         if not low <= value <= high:
             raise argparse.ArgumentTypeError(f"doit être compris entre {low} et {high} : « {text} »")
         return value
+
     return convert
 
 
@@ -93,40 +96,69 @@ def build_parser() -> argparse.ArgumentParser:
             "ou pour lesquels vous disposez d'une autorisation écrite."
         ),
         epilog="Codes de sortie : 0 succès, 1 seuil --fail-on atteint, 2 erreur de saisie, "
-               "3 erreur d'exécution, 130 interruption.",
+        "3 erreur d'exécution, 130 interruption.",
     )
-    parser.add_argument("targets", nargs="+", metavar="CIBLE",
-                        help="adresse IP, réseau CIDR (192.168.1.0/24) ou nom d'hôte")
+    parser.add_argument(
+        "targets", nargs="+", metavar="CIBLE", help="adresse IP, réseau CIDR (192.168.1.0/24) ou nom d'hôte"
+    )
 
     scan = parser.add_argument_group("scan")
-    scan.add_argument("-p", "--ports", default="top100",
-                      help="ports : 22 | 20-25 | 22,80,443 | top100 | well-known | all (défaut : top100)")
-    scan.add_argument("-t", "--timeout", type=_positive_float, default=DEFAULT_TIMEOUT,
-                      help=f"délai par tentative en secondes (défaut : {DEFAULT_TIMEOUT})")
-    scan.add_argument("-c", "--concurrency", type=_bounded_int(1, 500), default=DEFAULT_CONCURRENCY,
-                      help=f"tentatives simultanées, 1 à 500 (défaut : {DEFAULT_CONCURRENCY})")
-    scan.add_argument("--max-hosts", type=_bounded_int(1, MAX_HOSTS_LIMIT), default=DEFAULT_MAX_HOSTS,
-                      help=f"nombre maximal d'adresses (défaut : {DEFAULT_MAX_HOSTS})")
-    scan.add_argument("--banners", action="store_true",
-                      help="lit la bannière des ports ouverts (plus lent, plus visible)")
-    scan.add_argument("--banner-timeout", type=_positive_float, default=DEFAULT_BANNER_TIMEOUT,
-                      help=f"délai de lecture d'une bannière en secondes (défaut : {DEFAULT_BANNER_TIMEOUT})")
-    scan.add_argument("--allow-public", action="store_true",
-                      help="lève le garde-fou : autorise les cibles hors réseaux privés "
-                           "(uniquement avec une autorisation écrite)")
+    scan.add_argument(
+        "-p",
+        "--ports",
+        default="top100",
+        help="ports : 22 | 20-25 | 22,80,443 | top100 | well-known | all (défaut : top100)",
+    )
+    scan.add_argument(
+        "-t",
+        "--timeout",
+        type=_positive_float,
+        default=DEFAULT_TIMEOUT,
+        help=f"délai par tentative en secondes (défaut : {DEFAULT_TIMEOUT})",
+    )
+    scan.add_argument(
+        "-c",
+        "--concurrency",
+        type=_bounded_int(1, 500),
+        default=DEFAULT_CONCURRENCY,
+        help=f"tentatives simultanées, 1 à 500 (défaut : {DEFAULT_CONCURRENCY})",
+    )
+    scan.add_argument(
+        "--max-hosts",
+        type=_bounded_int(1, MAX_HOSTS_LIMIT),
+        default=DEFAULT_MAX_HOSTS,
+        help=f"nombre maximal d'adresses (défaut : {DEFAULT_MAX_HOSTS})",
+    )
+    scan.add_argument(
+        "--banners", action="store_true", help="lit la bannière des ports ouverts (plus lent, plus visible)"
+    )
+    scan.add_argument(
+        "--banner-timeout",
+        type=_positive_float,
+        default=DEFAULT_BANNER_TIMEOUT,
+        help=f"délai de lecture d'une bannière en secondes (défaut : {DEFAULT_BANNER_TIMEOUT})",
+    )
+    scan.add_argument(
+        "--allow-public",
+        action="store_true",
+        help="lève le garde-fou : autorise les cibles hors réseaux privés (uniquement avec une autorisation écrite)",
+    )
 
     out = parser.add_argument_group("sortie")
-    out.add_argument("-f", "--format", choices=("text", "json", "csv"), default="text",
-                     help="format du résultat (défaut : text)")
-    out.add_argument("-o", "--output", type=Path, metavar="FICHIER",
-                     help="écrit le résultat dans un fichier au lieu de l'écran")
-    out.add_argument("--force", action="store_true",
-                     help="autorise l'écrasement d'un fichier de sortie existant")
-    out.add_argument("--all", action="store_true", dest="include_all",
-                     help="inclut aussi les ports fermés et filtrés")
-    out.add_argument("--fail-on", choices=tuple(_RISK_CHOICES), metavar="NIVEAU",
-                     help="code de sortie 1 si un port ouvert atteint ce risque : "
-                          + ", ".join(_RISK_CHOICES))
+    out.add_argument(
+        "-f", "--format", choices=("text", "json", "csv"), default="text", help="format du résultat (défaut : text)"
+    )
+    out.add_argument(
+        "-o", "--output", type=Path, metavar="FICHIER", help="écrit le résultat dans un fichier au lieu de l'écran"
+    )
+    out.add_argument("--force", action="store_true", help="autorise l'écrasement d'un fichier de sortie existant")
+    out.add_argument("--all", action="store_true", dest="include_all", help="inclut aussi les ports fermés et filtrés")
+    out.add_argument(
+        "--fail-on",
+        choices=tuple(_RISK_CHOICES),
+        metavar="NIVEAU",
+        help="code de sortie 1 si un port ouvert atteint ce risque : " + ", ".join(_RISK_CHOICES),
+    )
     out.add_argument("--no-color", action="store_true", help="désactive les couleurs")
     out.add_argument("-q", "--quiet", action="store_true", help="n'affiche ni progression ni avertissement")
 
@@ -137,6 +169,7 @@ def build_parser() -> argparse.ArgumentParser:
 # ─────────────────────────────────────────────────────────────
 # 3. Outils d'affichage
 # ─────────────────────────────────────────────────────────────
+
 
 def _use_utf8(stream: TextIO) -> None:
     """
@@ -199,6 +232,7 @@ def _write_output(text: str, path: Path | None, force: bool) -> None:
 # 4. Point d'entrée
 # ─────────────────────────────────────────────────────────────
 
+
 def main(argv: list[str] | None = None, *, connector: Connector | None = None) -> int:
     """
     Point d'entrée de la commande « port-scanner ».
@@ -220,14 +254,15 @@ def main(argv: list[str] | None = None, *, connector: Connector | None = None) -
 
     # Fichier de sortie : on vérifie AVANT le scan, pour ne pas perdre un long scan
     if args.output is not None and args.output.exists() and not args.force:
-        print(f"Erreur : le fichier « {args.output} » existe déjà (utilisez --force pour l'écraser).",
-              file=sys.stderr)
+        print(f"Erreur : le fichier « {args.output} » existe déjà (utilisez --force pour l'écraser).", file=sys.stderr)
         return EXIT_USAGE
 
     public = [t for t in targets if classify(t.address) is Category.OTHER]
     if public:
-        warn(f"Avertissement : {len(public)} cible(s) hors réseau privé (--allow-public). "
-             "Assurez-vous de disposer d'une autorisation écrite.")
+        warn(
+            f"Avertissement : {len(public)} cible(s) hors réseau privé (--allow-public). "
+            "Assurez-vous de disposer d'une autorisation écrite."
+        )
 
     progress = Progress(len(targets) * len(ports), enabled=not args.quiet and sys.stderr.isatty())
     started = datetime.now(UTC)
@@ -245,7 +280,7 @@ def main(argv: list[str] | None = None, *, connector: Connector | None = None) -
             connector=connector,
             on_result=progress,
         )
-    except ValueError as exc:            # bornes du moteur (scan trop volumineux…)
+    except ValueError as exc:  # bornes du moteur (scan trop volumineux…)
         progress.finish()
         print(f"Erreur : {exc}", file=sys.stderr)
         return EXIT_USAGE
