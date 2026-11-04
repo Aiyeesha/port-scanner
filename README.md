@@ -157,6 +157,12 @@ connection may be logged by the target service — which the detection side buil
 | Overwriting an existing report | exclusive file creation, `--force` required |
 | Supply chain | no runtime dependencies; Dependabot and Ruff (Bandit rules) in CI |
 
+## Detection side (Blue Team)
+
+The [`detection/`](detection/README.en.md) folder shows how to **spot** such a scan: annotated Wireshark
+captures, two **Suricata** rules and a **Sigma** correlation rule, all automatically verified in CI
+against real captures (MITRE ATT&CK T1046).
+
 ## Limitations
 
 - **TCP only** — no UDP scanning.
@@ -185,7 +191,7 @@ Tests **never** reach the outside network: real states are tested on `127.0.0.1`
 | 4 | Service identification, risk level, optional banner grabbing | ✅ |
 | 5 | Full CLI, JSON/CSV output, exit codes | ✅ |
 | 6 | Tests against local servers, docs, hardening → **v1.0.0** | ✅ |
-| 7 | Detection side: Wireshark capture, Suricata rule and Sigma rule | ⏳ |
+| 7 | Detection side: Wireshark capture, Suricata rule and Sigma rule | ✅ |
 | 8 | Local web UI (v1.1, optional) | ⏳ |
 
 ## License

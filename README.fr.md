@@ -219,6 +219,12 @@ détection exploite.
 
 ---
 
+## Volet détection (Blue Team)
+
+Le dossier [`detection/`](detection/README.md) montre comment **repérer** un tel scan : captures
+Wireshark commentées, deux règles **Suricata** et une règle **Sigma** de corrélation, toutes vérifiées
+automatiquement en CI sur des captures réelles (MITRE ATT&CK T1046).
+
 ## Limites
 
 - **TCP uniquement** : pas de scan UDP (DNS 53/udp, SNMP 161/udp… ne sont pas couverts).
@@ -251,7 +257,7 @@ le reste par simulation.
 | 4 | Identification des services, niveau de risque, lecture de bannière (optionnelle) | ✅ |
 | 5 | Ligne de commande complète, sorties JSON/CSV, codes de retour | ✅ |
 | 6 | Tests sur serveurs locaux, documentation, durcissement → **v1.0.0** | ✅ |
-| 7 | Volet détection : capture Wireshark, règle Suricata et règle Sigma | ⏳ |
+| 7 | Volet détection : capture Wireshark, règle Suricata et règle Sigma | ✅ |
 | 8 | Interface web locale (v1.1, optionnelle) | ⏳ |
 
 ## Licence

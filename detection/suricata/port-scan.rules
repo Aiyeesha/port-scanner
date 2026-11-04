@@ -1,0 +1,28 @@
+# ─────────────────────────────────────────────────────────────────────────────
+# Règles Suricata — détection d'un balayage de ports TCP (MITRE ATT&CK T1046)
+# Projet : https://github.com/Aiyeesha/port-scanner
+#
+# SID 1000000–1999999 : plage réservée aux règles locales (aucun conflit avec
+# les jeux de règles publics comme Emerging Threats).
+#
+# Validées par rejeu de captures réelles (detection/samples/) :
+#   scan-lab.pcap  → 1000001 et 1000002 déclenchées (une fois chacune)
+#   benign.pcap    → aucune alerte (20 requêtes web)
+#   busy.pcap      → 1000001 seule : faux positif ASSUMÉ, voir ci-dessous
+# ─────────────────────────────────────────────────────────────────────────────
+
+# Règle 1 — INDICATEUR FAIBLE (priorité 3) : rafale de SYN depuis une même source.
+#   flow:stateless   la règle examine chaque paquet, sans suivi de session
+#   flags:S,12       drapeau SYN seul ; « 12 » ignore les bits CWR/ECE (ECN)
+#   threshold both   une seule alerte par source et par fenêtre de 10 s, à partir de 30 SYN
+# Limite : elle compte des SYN, pas des ports DISTINCTS. Un client légitime très actif
+# (navigateur, sauvegarde…) peut la déclencher. La corrélation Sigma lève cette limite.
+alert tcp any any -> $HOME_NET any (msg:"PORT-SCANNER - Rafale de SYN depuis une meme source (indicateur faible)"; flow:stateless; flags:S,12; threshold:type both, track by_src, count 30, seconds 10; classtype:attempted-recon; priority:3; metadata:mitre_tactic_id TA0007, mitre_technique_id T1046; sid:1000001; rev:2;)
+
+# Règle 2 — INDICATEUR PRINCIPAL : une machine interne renvoie une rafale de RST.
+#   Un RST répond à une tentative vers un port FERMÉ. Un client légitime vise des
+#   services ouverts et ne provoque presque jamais de RST : un scan, si (la plupart
+#   des ports sondés sont fermés).
+#   flags:R+         drapeau RST, avec ou sans autres drapeaux (en pratique RST+ACK)
+#   track by_src     la source du RST est la machine SONDÉE
+alert tcp $HOME_NET any -> any any (msg:"PORT-SCANNER - Rafale de refus de connexion (RST) - ports fermes sondes"; flow:stateless; flags:R+; threshold:type both, track by_src, count 30, seconds 10; classtype:attempted-recon; priority:2; metadata:mitre_tactic_id TA0007, mitre_technique_id T1046; sid:1000002; rev:2;)

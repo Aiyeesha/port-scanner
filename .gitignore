@@ -35,5 +35,7 @@ Thumbs.db
 # Ils peuvent révéler la topologie d'un réseau : ne jamais les publier par accident
 *.pcap
 *.pcapng
+# … sauf les captures de laboratoire du volet détection (trafic 127.0.0.1 uniquement)
+!detection/samples/*.pcap
 scan-*.json
 scan-*.csv
