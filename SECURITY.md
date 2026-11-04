@@ -33,7 +33,10 @@ Sont notamment concernés :
 - tout contournement du garde-fou qui limite par défaut les cibles aux réseaux privés et à la boucle locale ;
 - toute consommation de ressources non bornée (nombre de connexions simultanées, mémoire) ;
 - tout traitement dangereux des données reçues lors de la lecture des bannières ;
-- toute fuite d'information dans les fichiers de sortie au-delà de ce qui a été demandé.
+- toute fuite d'information dans les fichiers de sortie au-delà de ce qui a été demandé ;
+- pour l'interface web locale : tout moyen pour une page tierce, une autre machine du réseau ou un
+  nom de domaine pointant vers 127.0.0.1 (DNS rebinding) de déclencher un scan ou de lire un résultat
+  sans le jeton, ainsi que toute injection dans la page.
 
 ## Usage responsable
 
