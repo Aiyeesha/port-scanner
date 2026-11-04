@@ -26,7 +26,7 @@ nor loopback: an explicit option will be required to lift this safeguard.
 |---|---|---|
 | 1 | Repository, layout, continuous integration | ✅ |
 | 2 | Target and port parsing, private-network safeguard | ✅ |
-| 3 | Asynchronous TCP connect scan (asyncio), bounded concurrency | ⏳ |
+| 3 | Asynchronous TCP connect scan (asyncio), bounded concurrency | ✅ |
 | 4 | Service identification, risk level, optional banner grabbing | ⏳ |
 | 5 | Full CLI, JSON/CSV output, exit codes | ⏳ |
 | 6 | Tests against local servers, docs, hardening → **v1.0.0** | ⏳ |
