@@ -40,7 +40,7 @@ dependencies = []
 
 # Dépendances utiles seulement pour développer (installées avec « .[dev] »)
 [project.optional-dependencies]
-dev = ["pytest>=9.2.0", "ruff>=0.17.3"]
+dev = ["pytest>=9.2.0", "ruff>=0.17.4"]
 
 [project.urls]
 Repository = "https://github.com/Aiyeesha/port-scanner"
